@@ -4,3 +4,6 @@ Main/
 PR1/
 SLAE/
 .gitignore
+go.work.sum
+go.work
+go.mod

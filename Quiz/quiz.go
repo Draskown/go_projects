@@ -4,13 +4,19 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"log"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 )
 
 func main(){
 	fileName := flag.String("csv", "problems.csv", "a csv file in format of 'question,answer'")
+	shuffle := flag.Bool("shuffle", false, "shuffle the quiz")
 	flag.Parse()
+
+	log.Print(*shuffle)
 
 	file, err := os.Open(*fileName)
 	if err != nil {
@@ -24,6 +30,13 @@ func main(){
 	}
 
 	problems := parseLines(lines)
+
+	if *shuffle{
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(problems), func(i, j int) { 
+			problems[i], problems[j] = problems[j], problems[i]
+		})
+	}
 
 	correct := 0
 	for i, p := range problems {
