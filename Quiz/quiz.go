@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -14,9 +13,8 @@ import (
 func main(){
 	fileName := flag.String("csv", "problems.csv", "a csv file in format of 'question,answer'")
 	shuffle := flag.Bool("shuffle", false, "shuffle the quiz")
+	timeLimit := flag.Int("time", 30, "time limit for the quiz")
 	flag.Parse()
-
-	log.Print(*shuffle)
 
 	file, err := os.Open(*fileName)
 	if err != nil {
@@ -28,7 +26,6 @@ func main(){
 	if err != nil{
 		exit("Failed to parse the file.")
 	}
-
 	problems := parseLines(lines)
 
 	if *shuffle{
@@ -38,20 +35,43 @@ func main(){
 		})
 	}
 
+	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+
 	correct := 0
 	for i, p := range problems {
 		fmt.Printf("Problem #%d: %s = \n", i+1, p.q)
+		answerC := make(chan string)
+		
+		go func(){
+			var answer string
+			fmt.Scanln(&answer)
+			answerC <- answer
+		}()
 
-		var answer string
-
-		fmt.Scanln(&answer)
-
-		if answer == p.a {
-			correct++
+		select {
+		case <-timer.C:
+			fmt.Printf("Your time has expired. %d/%d", correct, len(problems))
+			return
+		case answer := <-answerC:
+			if answer == p.a {
+				correct++
+			}
 		}
 	}
 
-	fmt.Printf("%d/%d", correct, len(problems))
+	addString := ""
+
+	if correct == 0{
+		addString = "Poor job"
+	} else if correct > 0 && correct < 5{
+		addString = "Try a little harder"
+	} else if correct >= 5 && correct <8{
+		addString = "You've done alright"
+	} else if correct >= 8{
+		addString = "Excellent job"
+	}
+
+	fmt.Printf(addString+" %d/%d", correct, len(problems))
 }
 
 type problem struct{
