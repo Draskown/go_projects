@@ -23,10 +23,15 @@ func main(){
 	// Get the lines from the CSV file
 	problems, err := ReadCSV(file)
 
+	// If there was an error while reading the file
+	if err != nil {
+		Exit(err.Error())
+	}
+
 	// If shuffle flag was provided as true
 	if shuffle{
 		// Set a random seed
-		rand.Seed(time.Now().UnixNano())
+		rand.NewSource(time.Now().UnixNano())
 		// Shuffle the array
 		rand.Shuffle(len(problems), func(i, j int) { 
 			problems[i], problems[j] = problems[j], problems[i]
