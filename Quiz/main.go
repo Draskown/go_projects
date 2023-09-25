@@ -1,10 +1,10 @@
 package main
 
 import (
-	. "QuizProject/Quiz"
 	"fmt"
-	"math/rand"
 	"time"
+	"math/rand"
+	. "QuizProject/Quiz"
 )
 
 // Main function of the program
@@ -49,13 +49,16 @@ func main(){
 	// Create an additional string for the message to display
 	// whether the user's done well or not
 	addString := ""
-	if score == 0{
+	
+	percentage := float64(score) / float64(len(problems))
+
+	if percentage == 0{
 		addString = "Poor job"
-	} else if score > 0 && score < 5{
+	} else if percentage > 0 && percentage <= 0.5{
 		addString = "Try a little harder"
-	} else if score >= 5 && score <8{
+	} else if percentage > 0.5 && percentage <= 0.9{
 		addString = "You've done alright"
-	} else if score >= 8{
+	} else if percentage >= 0.9{
 		addString = "Excellent job"
 	}
 
