@@ -1,14 +1,14 @@
 package quiz
 
 import (
-	"bufio"
-	"encoding/csv"
-	"flag"
-	"fmt"
-	"io"
 	"os"
-	"strings"
+	"io"
+	"fmt"
 	"time"
+	"flag"
+	"bufio"
+	"strings"
+	"encoding/csv"
 )
 
 // Opens the file from given directory
@@ -111,8 +111,6 @@ func AskQuestions(problems []problem, timelimit int) (int, error){
 		// Otherwise, inrease the amount of correct answers
 		if strings.EqualFold(ans, p.a){
 			correct++
-		} else {
-			fmt.Println("Wrong answer!")
 		}
 	}
 
@@ -121,7 +119,7 @@ func AskQuestions(problems []problem, timelimit int) (int, error){
 }
 
 // Asks a single question from the all of the read
-func askASingleQuestion(question, answer string, index int, timer <- chan time.Time, input <-chan string) (string, error){
+func askASingleQuestion(question, answer string, index int, timer <-chan time.Time, input <-chan string) (string, error){
 	// Print the current problem
 	fmt.Printf("Problem #%d: %s = \n", index+1, question)
 
@@ -129,7 +127,7 @@ func askASingleQuestion(question, answer string, index int, timer <- chan time.T
 		select {
 		// If timer has sent a message (that it was done)
 		case <- timer:
-			return "", fmt.Errorf("your time has expired")
+			return "", fmt.Errorf("Your time has expired")
 		
 		// If the input channel has some message in it
 		case ans := <-input:
