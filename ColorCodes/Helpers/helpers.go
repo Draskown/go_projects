@@ -19,15 +19,15 @@ func ReadArguments() (bool, bool, string, string) {
 
 	flag.Parse()
 
-	// if len(os.Args[1]) != 4{
-	// 	panic("Wrong input size! Must be 4 letters")
-	// }
-	// if len(os.Args[2]) != 4{
-	// 	panic("Wrong output size! Must be 4 letters")
-	// }
-	// if !checkStrings(os.Args[1], os.Args[2]){
-	// 	panic("Wrong string input format!")
-	// }
+	if len(os.Args[1]) != 4{
+		panic("Wrong input size! Must be 4 letters")
+	}
+	if len(os.Args[2]) != 4{
+		panic("Wrong output size! Must be 4 letters")
+	}
+	if !checkStrings(os.Args[1], os.Args[2]){
+		panic("Wrong string input format!")
+	}
 
 	fmt.Println(*b, *a)
 	os.Exit(1)
