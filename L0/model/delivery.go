@@ -2,6 +2,7 @@ package model
 
 // Secondary delivery object
 type Delivery struct {
+	Id int `json:"id"`
 	Name string `json:"name"`
 	Phone string `json:"phone"`
 	ZipCode string `json:"zip"`

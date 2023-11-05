@@ -6,6 +6,7 @@ import "time"
 // Contains info about another
 // JSON objects
 type Order struct {
+	Id int `json:"id"`
 	OrderId string `json:"order_uid"`
 	TrackNumber string `json:"track_number"`
 	Entry string `json:"entry"`

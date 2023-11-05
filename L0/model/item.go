@@ -2,6 +2,7 @@ package model
 
 // Secondary item object
 type Item struct {
+	Id int `json:"id"`
 	TrackNumber string `json:"track_number"`
 	Price int `json:"price"`
 	RId string `json:"rid"`

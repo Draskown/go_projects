@@ -2,6 +2,7 @@ package model
 
 // Secondary payment object
 type Payment struct {
+	Id int `json:"id"`
 	Transaction string `json:"transaction"`
 	RequestID string `json:"request_id"`
 	Currency string `json:"currency"`
