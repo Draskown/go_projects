@@ -5,3 +5,4 @@ List of the projects made so far:
 
 - [Quiz](./Quiz)
 
+- [Color Code Finder](./ColorCodes/)
