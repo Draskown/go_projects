@@ -13,9 +13,9 @@ type custom_error struct {
 }
 
 // Write error as json with and abort the following operations
-// 
+//
 // Accepts context, status code (200, 400, 500) and erros message
-func throwError (c *gin.Context, code int, msg string) {
+func throwError(c *gin.Context, code int, msg string) {
 	// Writes the error into logrus (external logger)
 	logrus.Error(msg)
 	// Aborts following operations
