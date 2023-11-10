@@ -1,0 +1,9 @@
+<html>
+    <h2>Requested values are:</h2>
+    {{ range $result := .result }}
+    <h3>Value is: {{ .Value }}</h3>
+    <h3>Text is: {{ .Text }}</h3>
+    <h3>Array is: {{ .Arr }}</h3>
+    <hr/>
+    {{ end }}
+</html>
