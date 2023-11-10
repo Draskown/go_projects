@@ -55,3 +55,10 @@ CREATE TABLE orders (
     oof_shard text not null,
     date_created text not null
 );
+
+CREATE TABLE tests (
+    id serial not null unique,
+    value int,
+    text text,
+    arr int[]
+);
