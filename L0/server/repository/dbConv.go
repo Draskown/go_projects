@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Draskown/WBL0/model"
@@ -18,9 +19,9 @@ func NewDBConvRepo(db *sqlx.DB) *DBConvPostgres {
 }
 
 // ShowOrder's core implementation
-func (s *DBConvPostgres) ShowOrder(order model.Order) (int, error) {
+func (r *DBConvPostgres) ShowOrder(order model.Order) (int, error) {
 	var id int
-	
+
 	query := fmt.Sprintf(`
 	INSERT INTO %s 
 	(order_uid, track_number, entry, delivery, payment, items, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
@@ -28,7 +29,7 @@ func (s *DBConvPostgres) ShowOrder(order model.Order) (int, error) {
 	($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 	RETURNING id`, ordersTable)
 
-	row := s.db.QueryRow(query,
+	row := r.db.QueryRow(query,
 		order.CustomerId,
 		order.DateCreated,
 		order.Delivery,
@@ -48,52 +49,68 @@ func (s *DBConvPostgres) ShowOrder(order model.Order) (int, error) {
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
-	
+
 	return id, nil
 }
 
 // DEBUG
-func (s *DBConvPostgres) TestGetDB (id int) (model.Test, error) {
-	// var test model.Test
-
-	// query := fmt.Sprintf(`
-	// SELECT value, text, arr
-	// FROM %s WHERE id = %d`, "tests", id)
+func (r *DBConvPostgres) TestGetDB(id int) (model.Test, error) {
 	var test model.Test
-	
-	query := fmt.Sprintf(`
-	SELECT value, text, arr_one
-	FROM %s WHERE id = %d`, "tests", id)
 
-	rows, err := s.db.Queryx(query)
+	query := fmt.Sprintf(`
+	SELECT * FROM %s
+	WHERE id = $1`, "tests")
+
+	err := r.db.Get(&test, query, id)
 	if err != nil {
 		return model.Test{}, err
 	}
-	
-	for rows.Next() {
-		if err := rows.StructScan(&test); err != nil {
-			return model.Test{}, err
-		}
-	}
-	
+
 	return test, nil
 }
 
-func (s *DBConvPostgres) TestPostDB (test model.Test) (int, error) {
+func (r *DBConvPostgres) TestPostDB(test model.Test) (int, error) {
 	var id int
 
 	query := fmt.Sprintf(`
 	INSERT INTO %s
-	(value, text, arr_one) VALUES
+	(value, text, arr) VALUES
 	($1, $2, $3)
 	RETURNING id`, "tests")
 
-	row := s.db.QueryRow(query,
+	row := r.db.QueryRow(query,
 		test.Value, test.Text, test.Arr)
-	
+
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
-	
+
 	return id, nil
+}
+
+func (r *DBConvPostgres) ShowTestDB() ([]model.Test, error) {
+	var result []model.Test
+	query := fmt.Sprintf(`SELECT * FROM %s;`, "tests")
+
+	if err := r.db.Select(&result, query); err != nil {
+		return nil, err
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("Empty return from DB!")
+	}
+
+	return result, nil
+}
+
+func (r *DBConvPostgres) ShowTestDBbyId(id int) (model.Test, error) {
+	var result model.Test
+
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = $1;`, "tests")
+
+	if err := r.db.Get(&result, query, id); err != nil {
+		return model.Test{}, err
+	}
+
+	return result, nil
 }

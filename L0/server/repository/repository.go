@@ -10,12 +10,14 @@ type DBConv interface {
 	ShowOrder(order model.Order) (int, error)
 
 	// DEBUG
-	TestGetDB (id int) (model.Test, error)
-	TestPostDB (test model.Test) (int, error)
+	TestGetDB(id int) (model.Test, error)
+	TestPostDB(test model.Test) (int, error)
+	ShowTestDB() ([]model.Test, error)
+	ShowTestDBbyId(id int) (model.Test, error)
 }
 
 // Struct to hold the interface
-type Repository struct{
+type Repository struct {
 	DBConv
 }
 

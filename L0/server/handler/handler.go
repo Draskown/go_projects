@@ -20,14 +20,19 @@ func NewHandler(s *service.Service) *Handler {
 // Returns a gin Engine as a start of the application
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.LoadHTMLGlob("./server/handler/templates/*.html")
 
 	// Route /:id implies that after the / route
 	// any id can follow to display order's information
 	router.GET("/:id", h.showOrder)
-	
+
 	// DEBUG
 	router.GET("/test", h.testGetDB)
 	router.POST("/test", h.testPostDB)
+
+	router.GET("/show", h.showTestDB)
+
+	router.GET("/test/:id", h.showTestDBbyId)
 
 	return router
 }

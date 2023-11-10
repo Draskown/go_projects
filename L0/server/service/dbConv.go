@@ -29,3 +29,11 @@ func (s *DBConvService) TestGetDB(id int) (model.Test, error) {
 func (s *DBConvService) TestPostDB(test model.Test) (int, error) {
 	return s.repo.TestPostDB(test)
 }
+
+func (s *DBConvService) ShowTestDB() ([]model.Test, error) {
+	return s.repo.ShowTestDB()
+}
+
+func (s *DBConvService) ShowTestDBbyId(id int) (model.Test, error) {
+	return s.repo.ShowTestDBbyId(id)
+}
