@@ -6,3 +6,8 @@ postgres:
   username: "postgres"
   dbname: "postgres"
   sslmode: "disable"
+
+stan:
+  clientid: "client"
+  clusterid: "cluster"
+  subject: "model"

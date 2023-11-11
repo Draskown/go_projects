@@ -44,6 +44,14 @@ func main() {
 		logrus.Fatalf("Could not connect to Postgres (%s)", err.Error())
 	}
 
+	sc, sub, err := repository.NewStanConn(
+		repository.StanConn{
+			ClientId:  viper.GetString("stan.clientid"),
+			ClusterId: viper.GetString("stan.clusterid"),
+			Subject:   viper.GetString("stan.subject"),
+		},
+	)
+
 	repo := repository.NewRepository(db)
 	service := service.NewService(repo)
 	hnd := handler.NewHandler(service)
@@ -66,6 +74,12 @@ func main() {
 	}
 	if err := db.Close(); err != nil {
 		logrus.Fatalf("Could not close database connection (%s)", err.Error())
+	}
+	if err := sub.Unsubscribe(); err != nil {
+		logrus.Fatalf("Could not unsubscribe from stan subject (%s)", err.Error())
+	}
+	if err := sc.Close(); err != nil {
+		logrus.Fatalf("Could not close stan connection (%s)", err.Error())
 	}
 }
 
