@@ -6,12 +6,13 @@ import (
 )
 
 // Structure to hold a
-// repo's interface on the database level
+// service interface dependant on the repository
+// on the service level
 type DBConvService struct {
 	repo repository.DBConv
 }
 
-// Creates a new ShowOrderService from the repo's interface
+// Creates a new DBConv service from the repo's interface
 func NewDBConvService(repo repository.DBConv) *DBConvService {
 	return &DBConvService{repo: repo}
 }

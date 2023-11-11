@@ -16,13 +16,12 @@ type DBConv interface {
 	ShowTestDBbyId(id int) (model.Test, error)
 }
 
-// Struct to hold the interface
+// Repository structure to hold the interface
 type Repository struct {
 	DBConv
 }
 
-// Creates a new repository with a ShowPostgres structure
-// that implements ShowOrder method
+// Creates a new repository dependant on the database itself
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		DBConv: NewDBConvRepo(db),

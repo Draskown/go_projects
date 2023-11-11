@@ -30,7 +30,7 @@ func main() {
 		logrus.Fatalf("Coul not load environment variables (%s)", err.Error())
 	}
 
-	// Create a struct for database from config info
+	// Connect to db using a struct made from config info
 	db, err := repository.NewPostgresDB(repository.DBConfig{
 		Host:     viper.GetString("postgres.host"),
 		Port:     viper.GetString("postgres.port"),
@@ -44,6 +44,7 @@ func main() {
 		logrus.Fatalf("Could not connect to Postgres (%s)", err.Error())
 	}
 
+	// Connect to stan using a struct made from config info
 	sc, sub, err := repository.NewStanConn(
 		repository.StanConn{
 			ClientId:  viper.GetString("stan.clientid"),
@@ -51,6 +52,9 @@ func main() {
 			Subject:   viper.GetString("stan.subject"),
 		},
 	)
+	if err != nil {
+		logrus.Fatalf("Could not connect to Stan (%s)", err.Error())
+	}
 
 	repo := repository.NewRepository(db)
 	service := service.NewService(repo)
@@ -69,6 +73,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
+	// Shutdown server, db conection, stan subscribtion and stan connection
 	if err := srv.Shutdown(context.Background()); err != nil {
 		logrus.Fatalf("Could not shutdown the server (%s)", err.Error())
 	}
@@ -83,11 +88,12 @@ func main() {
 	}
 }
 
+// Initialises application configuration
 func initConfig() error {
 	// Config relative path
 	viper.AddConfigPath("config")
 	// Config filename
-	viper.SetConfigName("viperConfig")
+	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()
 }

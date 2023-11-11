@@ -11,20 +11,20 @@ type Server struct {
 	httpServer *http.Server
 }
 
-// Runs server with a provided port
+// Method to start the server
 func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
-		Addr: ":" + port,
-		Handler: handler,
-		ReadTimeout: 10 * time.Second,
+		Addr:         ":" + port,
+		Handler:      handler,
+		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
 	return s.httpServer.ListenAndServe()
 }
 
-// Shutdown the server with a provided context
+// Method to shutdown the server
 func (s *Server) Shutdown(ctx context.Context) error {
-	
+
 	return s.httpServer.Shutdown(ctx)
 }

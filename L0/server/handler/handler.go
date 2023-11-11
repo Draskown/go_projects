@@ -10,7 +10,7 @@ type Handler struct {
 	service *service.Service
 }
 
-// Creates a new handler by passing a point to the service
+// Handler construct from depending on service
 func NewHandler(s *service.Service) *Handler {
 	return &Handler{service: s}
 }

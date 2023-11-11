@@ -8,12 +8,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Struct to link the ShowOrder method to
+// Struct for implementing the DBConv interface
 type DBConvPostgres struct {
 	db *sqlx.DB
 }
 
-// Create new struct with a provided db
+// Creates new struct with a provided db
 func NewDBConvRepo(db *sqlx.DB) *DBConvPostgres {
 	return &DBConvPostgres{db: db}
 }
