@@ -217,9 +217,8 @@ func (c *StanConn) restoreCache() error {
 
 			order.Items = append(order.Items, item)
 		}
+		Msgs = append(Msgs, order)
 	}
-
-	Msgs = append(Msgs, orders...)
 
 	return nil
 }
