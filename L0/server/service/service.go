@@ -10,7 +10,7 @@ type DBConv interface {
 	ShowOrder(id string) (model.Order, error)
 }
 
-// Structure of the service to realise the interfaces
+// Structure of the service to hold the interfaces
 type Service struct {
 	DBConv
 }

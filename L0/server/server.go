@@ -11,7 +11,7 @@ type Server struct {
 	httpServer *http.Server
 }
 
-// Method to start the server
+// Start the server's struct Listen and Serve method
 func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:         ":" + port,
@@ -23,7 +23,7 @@ func (s *Server) Run(port string, handler http.Handler) error {
 	return s.httpServer.ListenAndServe()
 }
 
-// Method to shutdown the server
+// Shutdown the server
 func (s *Server) Shutdown(ctx context.Context) error {
 
 	return s.httpServer.Shutdown(ctx)

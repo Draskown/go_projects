@@ -6,11 +6,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Constantas to hold tables names
 const (
-	deliveriesTable = "deliveries"
-	itemsTable      = "items"
-	paymentsTable   = "payments"
-	ordersTable     = "orders"
+	deliveriesTable string = "deliveries"
+	itemsTable      string = "items"
+	paymentsTable   string = "payments"
+	ordersTable     string = "orders"
 )
 
 // Struct to hold db info for simplicity of application's structure

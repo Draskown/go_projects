@@ -27,42 +27,54 @@ type StanConn struct {
 // Creates a new connection with Stan using info provided in the StanConn struct
 // , returning connection interface, subscription interface and error
 func NewStanConn(cfg StanConn) (stan.Conn, stan.Subscription, error) {
+	// Restore cache from DB
+	if err := cfg.restoreCache(); err != nil {
+		return nil, nil, err
+	}
+
+	// Connect to STAN cluster
 	sc, err := stan.Connect(cfg.ClusterId, cfg.ClientId+"_sub")
 	if err != nil {
 		return nil, nil, err
 	}
 
+	// Subscribe to the subject
 	sub, err := sc.Subscribe(cfg.Subject, cfg.subHandler)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if err := cfg.restoreCache(); err != nil {
-		return nil, nil, err
-	}
 	return sc, sub, nil
 }
 
 // Handles incoming messages from the subject
+//
+// Adds the message to DB and Msgs cache
 func (c *StanConn) subHandler(m *stan.Msg) {
 	var order model.Order
 	var mut sync.Mutex
 
+	// Lock operated structs and cache array
 	mut.Lock()
 	defer mut.Unlock()
 
+	// Get order from JSON
 	if err := json.Unmarshal(m.Data, &order); err != nil {
 		logrus.Errorf("Could not read incoming message (%s)\n", err.Error())
 		return
 	}
+	// Append order to cache
 	Msgs = append(Msgs, order)
 
+	// Initialise DB transaction
 	tx, err := c.DB.Begin()
 	if err != nil {
 		logrus.Errorf("Could not begin transaction (%s)\n", err.Error())
 		return
 	}
 
+	// Insert message's values into the
+	// delivery table
 	query := fmt.Sprintf(`
 	INSERT INTO %s
 	(name, phone, zip, city, address, region, email)
@@ -70,6 +82,8 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 	($1, $2, $3, $4, $5, $6, $7)
 	RETURNING id`, deliveriesTable)
 
+	// Get the delivery id and assign it
+	// to the order struct's delivery object
 	row := tx.QueryRow(query,
 		order.Delivery.Name,
 		order.Delivery.Phone,
@@ -79,14 +93,15 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 		order.Delivery.Region,
 		order.Delivery.Email,
 	)
-
 	if err := row.Scan(&order.Delivery.Id); err != nil {
 		logrus.Errorf("Could not insert into deliveries table (%s)\n", err.Error())
 		tx.Rollback()
 		return
 	}
 
+	// Range over all items that order has
 	for _, item := range order.Items {
+		// Insert item into the items table
 		query = fmt.Sprintf(`
 		INSERT INTO %s
 		(track_number, price, rid, name, sale, size, total_price, nm_id, brand, status, chrt_id)
@@ -94,6 +109,7 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id`, itemsTable)
 
+		// Get item id
 		row = tx.QueryRow(query,
 			item.TrackNumber,
 			item.Price,
@@ -107,16 +123,17 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 			item.Status,
 			item.ChartId,
 		)
-
 		if err := row.Scan(&item.Id); err != nil {
 			logrus.Errorf("Could not insert into items table (%s)\n", err.Error())
 			tx.Rollback()
 			return
 		}
 
+		// Add it to the itemIds array of ints
 		order.ItemsIds = append(order.ItemsIds, int64(item.Id))
 	}
 
+	// Insert order into the payments table
 	query = fmt.Sprintf(`
 	INSERT INTO %s
 	(transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
@@ -124,6 +141,8 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 	($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	RETURNING id`, paymentsTable)
 
+	// Get the payment id and assign it
+	// to the order struct's payment object
 	row = tx.QueryRow(query,
 		order.Payment.Transaction,
 		order.Payment.RequestID,
@@ -136,13 +155,13 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 		order.Payment.GoodsTotal,
 		order.Payment.CustomFee,
 	)
-
 	if err := row.Scan(&order.Payment.Id); err != nil {
 		logrus.Errorf("Could not insert into payments table (%s)\n", err.Error())
 		tx.Rollback()
 		return
 	}
 
+	// Insert the order itself
 	query = fmt.Sprintf(`
 	INSERT INTO %s 
 	(order_uid, track_number, entry, delivery, payment, items, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
@@ -172,17 +191,19 @@ func (c *StanConn) subHandler(m *stan.Msg) {
 		tx.Rollback()
 		return
 	}
-	logrus.Print("Inserted order into the table")
 
+	// Finish the transaction
 	if err := tx.Commit(); err != nil {
 		logrus.Errorf("Could not finish the transaction (%s)\n", err.Error())
 	}
 }
 
+// Restores Msgs cache from DB
 func (c *StanConn) restoreCache() error {
 	var orders []model.Order
-	logrus.Print("Test printing")
 
+	// Run a joined query to write two structs of the order
+	// (excepting items as they are handled differently)
 	query := fmt.Sprintf(`
 	SELECT o.id, o.order_uid, o.track_number, o.entry, o.items, o.locale, 
 		o.internal_signature, o.customer_id, o.delivery_service, o.shardkey, o.sm_id, 
@@ -203,9 +224,12 @@ func (c *StanConn) restoreCache() error {
 		return err
 	}
 
+	// Range over items in all the orders
 	for _, order := range orders {
 		for _, id := range order.ItemsIds {
 			var item model.Item
+
+			// Get the item from DB by its id in the order slice
 			query = fmt.Sprintf(`
 			SELECT * FROM %s
 			WHERE id=$1
@@ -217,6 +241,7 @@ func (c *StanConn) restoreCache() error {
 
 			order.Items = append(order.Items, item)
 		}
+		// Append the filled out order to the cache
 		Msgs = append(Msgs, order)
 	}
 

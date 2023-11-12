@@ -55,6 +55,7 @@ func main() {
 		logrus.Fatalf("Could not connect to Stan (%s)\n", err.Error())
 	}
 
+	// Dependancy injection
 	repo := repository.NewRepository(db)
 	service := service.NewService(repo)
 	hnd := handler.NewHandler(service)
@@ -68,6 +69,8 @@ func main() {
 		}
 	}()
 
+	// Wait for all of the goroutines to finish
+	// By waiting for SIGTERM and SIGINT signals
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
@@ -89,9 +92,7 @@ func main() {
 
 // Initialises application configuration
 func initConfig() error {
-	// Config relative path
 	viper.AddConfigPath("config")
-	// Config filename
 	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()
