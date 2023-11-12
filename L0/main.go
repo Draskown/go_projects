@@ -44,19 +44,19 @@ func main() {
 		logrus.Fatalf("Could not connect to Postgres (%s)\n", err.Error())
 	}
 
+	// Dependancy injection
+	repo := repository.NewRepository(db)
+
 	// Connect to stan using a struct made from config info
-	sc, sub, err := repository.NewStanConn(repository.StanConn{
+	sc, sub, err := repo.ConnectStan(repository.StanCfg{
 		ClientId:  viper.GetString("stan.clientid"),
 		ClusterId: viper.GetString("stan.clusterid"),
 		Subject:   viper.GetString("stan.subject"),
-		DB:        db,
 	})
 	if err != nil {
 		logrus.Fatalf("Could not connect to Stan (%s)\n", err.Error())
 	}
 
-	// Dependancy injection
-	repo := repository.NewRepository(db)
 	service := service.NewService(repo)
 	hnd := handler.NewHandler(service)
 
