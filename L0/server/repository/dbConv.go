@@ -29,6 +29,7 @@ func (r *DBConvPostgres) ShowOrder(id string) (model.Order, error) {
 	return model.Order{}, errors.New(fmt.Sprintf("No entry for id (%s)", id))
 }
 
+// Use DB connection to insert the order
 func (r *DBConvPostgres) insertOrder(order model.Order) error {
 	// Initialise DB transaction
 	tx, err := r.db.Begin()

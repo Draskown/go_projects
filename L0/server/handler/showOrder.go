@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/Draskown/WBL0/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,5 +20,11 @@ func (h *Handler) showOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.HTML(http.StatusOK,
+		"index.html",
+		gin.H{
+			"id":     result.OrderId,
+			"orders": []model.Order{result},
+		},
+	)
 }
