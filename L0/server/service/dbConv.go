@@ -18,23 +18,6 @@ func NewDBConvService(repo repository.DBConv) *DBConvService {
 }
 
 // Implements the service interface for calling from the service level
-func (s *DBConvService) ShowOrder(order model.Order) (int, error) {
-	return s.repo.ShowOrder(order)
-}
-
-// DEBUG
-func (s *DBConvService) TestGetDB(id int) (model.Test, error) {
-	return s.repo.TestGetDB(id)
-}
-
-func (s *DBConvService) TestPostDB(test model.Test) (int, error) {
-	return s.repo.TestPostDB(test)
-}
-
-func (s *DBConvService) ShowTestDB() ([]model.Test, error) {
-	return s.repo.ShowTestDB()
-}
-
-func (s *DBConvService) ShowTestDBbyId(id int) (model.Test, error) {
-	return s.repo.ShowTestDBbyId(id)
+func (s *DBConvService) ShowOrder(id string) (model.Order, error) {
+	return s.repo.ShowOrder(id)
 }

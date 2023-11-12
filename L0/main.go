@@ -27,7 +27,7 @@ func main() {
 	}
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("Coul not load environment variables (%s)", err.Error())
+		logrus.Fatalf("Coul not load environment variables (%s)\n", err.Error())
 	}
 
 	// Connect to db using a struct made from config info
@@ -41,19 +41,18 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 	if err != nil {
-		logrus.Fatalf("Could not connect to Postgres (%s)", err.Error())
+		logrus.Fatalf("Could not connect to Postgres (%s)\n", err.Error())
 	}
 
 	// Connect to stan using a struct made from config info
-	sc, sub, err := repository.NewStanConn(
-		repository.StanConn{
-			ClientId:  viper.GetString("stan.clientid"),
-			ClusterId: viper.GetString("stan.clusterid"),
-			Subject:   viper.GetString("stan.subject"),
-		},
-	)
+	sc, sub, err := repository.NewStanConn(repository.StanConn{
+		ClientId:  viper.GetString("stan.clientid"),
+		ClusterId: viper.GetString("stan.clusterid"),
+		Subject:   viper.GetString("stan.subject"),
+		DB:        db,
+	})
 	if err != nil {
-		logrus.Fatalf("Could not connect to Stan (%s)", err.Error())
+		logrus.Fatalf("Could not connect to Stan (%s)\n", err.Error())
 	}
 
 	repo := repository.NewRepository(db)
@@ -75,16 +74,16 @@ func main() {
 
 	// Shutdown server, db conection, stan subscribtion and stan connection
 	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Fatalf("Could not shutdown the server (%s)", err.Error())
+		logrus.Fatalf("Could not shutdown the server (%s)\n", err.Error())
 	}
 	if err := db.Close(); err != nil {
-		logrus.Fatalf("Could not close database connection (%s)", err.Error())
+		logrus.Fatalf("Could not close database connection (%s)\n", err.Error())
 	}
 	if err := sub.Unsubscribe(); err != nil {
-		logrus.Fatalf("Could not unsubscribe from stan subject (%s)", err.Error())
+		logrus.Fatalf("Could not unsubscribe from stan subject (%s)\n", err.Error())
 	}
 	if err := sc.Close(); err != nil {
-		logrus.Fatalf("Could not close stan connection (%s)", err.Error())
+		logrus.Fatalf("Could not close stan connection (%s)\n", err.Error())
 	}
 }
 

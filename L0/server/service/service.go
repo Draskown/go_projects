@@ -7,13 +7,7 @@ import (
 
 // Interface for implementing DBConv service
 type DBConv interface {
-	ShowOrder(order model.Order) (int, error)
-
-	// DEBUG
-	TestGetDB(id int) (model.Test, error)
-	TestPostDB(test model.Test) (int, error)
-	ShowTestDB() ([]model.Test, error)
-	ShowTestDBbyId(id int) (model.Test, error)
+	ShowOrder(id string) (model.Order, error)
 }
 
 // Structure of the service to realise the interfaces

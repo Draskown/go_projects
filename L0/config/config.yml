@@ -9,5 +9,5 @@ postgres:
 
 stan:
   clientid: "client"
-  clusterid: "cluster"
+  clusterid: "test_cluster"
   subject: "model"

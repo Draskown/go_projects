@@ -8,8 +8,8 @@ import (
 
 const (
 	deliveriesTable = "deliveries"
-	ItemsTable      = "items"
-	paymentsTable   = "payment"
+	itemsTable      = "items"
+	paymentsTable   = "payments"
 	ordersTable     = "orders"
 )
 

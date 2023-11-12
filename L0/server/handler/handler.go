@@ -26,13 +26,5 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	// any id can follow to display order's information
 	router.GET("/:id", h.showOrder)
 
-	// DEBUG
-	router.GET("/test", h.testGetDB)
-	router.POST("/test", h.testPostDB)
-
-	router.GET("/show", h.showTestDB)
-
-	router.GET("/test/:id", h.showTestDBbyId)
-
 	return router
 }

@@ -3,26 +3,21 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Draskown/WBL0/model"
 	"github.com/gin-gonic/gin"
 )
 
 // Route that must be handled after accessing `/:id`
+//
+// Parses id from the route (i.e. localhost:8080/123,
+// 123 would be the id)
 func (h *Handler) showOrder(c *gin.Context) {
-	var input model.Order
+	id := c.Param("id")
 
-	if err := c.BindJSON(&input); err != nil {
+	result, err := h.service.DBConv.ShowOrder(id)
+	if err != nil {
 		throwError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.service.DBConv.ShowOrder(input)
-	if err != nil {
-		throwError(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-	})
+	c.JSON(http.StatusOK, result)
 }
