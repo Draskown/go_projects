@@ -17,16 +17,18 @@ type StanCfg struct {
 	ClusterName string
 	ClientName  string
 	SubjectName string
+	ServerUrl   string
 }
 
 // Stan configuration constructor
 //
 // Accepts string values got from environment variables
-func NewStanCfg(clun, clin, subn string) *StanCfg {
+func NewStanCfg(clun, clin, subn, url string) *StanCfg {
 	return &StanCfg{
 		ClusterName: clun,
 		ClientName:  clin,
 		SubjectName: subn,
+		ServerUrl:   url,
 	}
 }
 
@@ -37,10 +39,15 @@ func main() {
 		os.Getenv("CLUSTER_NAME"),
 		os.Getenv("CLIENT_NAME"),
 		os.Getenv("SUBJECT_NAME"),
+		os.Getenv("SERVER_URL"),
 	)
 
 	// Connect to STAN
-	sc, err := stan.Connect(stanCfg.ClusterName, stanCfg.ClientName+"_pub")
+	sc, err := stan.Connect(
+		stanCfg.ClusterName,
+		stanCfg.ClientName+"_pub",
+		stan.NatsURL(stanCfg.ServerUrl),
+	)
 	if err != nil {
 		logrus.Fatalf("Error while connecting to STAN in Publisher (%s)\n", err.Error())
 		return
