@@ -1,0 +1,1 @@
+module github.com/Draskown/L1/Inheritance-Alternative
