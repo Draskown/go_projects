@@ -1,0 +1,72 @@
+networks:
+  stan-network:
+    name: stan-network
+    driver: bridge
+
+  db-network:
+    name: db-network
+    driver: bridge
+
+services:
+  # stan-server:
+  #   networks: 
+  #     - stan-network
+  #   image: nats-streaming
+  #   container_name: stan-server
+  #   ports: 
+  #     - "4222:4222"
+  #     - "8222:8222"
+  #   command: 
+  #     - "-cid"
+  #     - test_cluster
+
+  # publisher:
+  #   container_name: publisher
+  #   volumes:
+  #     - ${PWD}/model.json:/model.json
+  #   environment:
+  #     - CLUSTER_NAME=${CLUSTER_NAME}
+  #     - CLIENT_NAME=${CLIENT_NAME}
+  #     - SUBJECT_NAME=${SUBJECT_NAME}
+  #     - SERVER_URL=${SERVER_URL}
+  #   networks: 
+  #     - stan-network
+  #   build:
+  #     context: .
+  #   depends_on:
+  #     - stan-server
+  #     - db
+
+  subscriber:
+    container_name: subscriber
+    networks: 
+      - stan-network
+      - db-network
+    build:
+      context: ${PWD}/../../Main
+    depends_on:
+      # - stan-server
+      - postgres-db
+    environment:
+      - CLUSTER_NAME=${CLUSTER_NAME}
+      - CLIENT_NAME=${CLIENT_NAME}
+      - SUBJECT_NAME=${SUBJECT_NAME}
+      - SERVER_URL=${SERVER_URL}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+
+  postgres-db:
+    networks:
+      - db-network
+    image: postgres:alpine3.18
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./model.sql:/docker-entrypoint-initdb.d/001.sql
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - 5433:5432
