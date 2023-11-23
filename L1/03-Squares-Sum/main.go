@@ -36,7 +36,7 @@ func basic(arr []int) {
 		//
 		// Can be done w/o the pointers to the WaitGroup, Mutex and sum
 		// because they are initialised in the global scope,
-		// but the more practical way is to
+		// but the more practical way is as such
 		go func(val int, wg *sync.WaitGroup, m *sync.Mutex, s *int) {
 			// Lock all the global variables
 			mut.Lock()
